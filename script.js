@@ -2,6 +2,7 @@
 let currentInput = '';
 let previousInput = '';
 let currentOperation = '';
+let shouldResetInput = false; // ✅ New flag to handle reset after calculation
 
 // Reference to the display input element
 const display = document.getElementById('display');
@@ -22,6 +23,11 @@ function updateDisplay() {
  * Prevents multiple decimals in one number
  */
 function appendNumber(num) {
+    if (shouldResetInput) {
+        currentInput = '';          // ✅ Clear input if result was just shown
+        shouldResetInput = false;
+    }
+
     if (num === '.' && currentInput.includes('.')) return; // Avoid multiple decimals
     currentInput += num; 
     updateDisplay();     // Update the display
@@ -63,8 +69,10 @@ function calculate() {
             break;
         case '/':
             if (curr === 0) {
-                // Prevent divide-by-zero and show error
-                document.getElementById("display").value = "Error";
+                display.value = "Error"; // Show error on divide by zero
+                currentInput = '';
+                previousInput = '';
+                currentOperation = '';
                 return;
             }
             result = prev / curr;
@@ -73,10 +81,10 @@ function calculate() {
             return; // Exit if no valid operation
     }
 
-    // Set the result as the new current input and clear others
-    currentInput = result.toString();
+    currentInput = result.toString();  // Set result as new current input
     previousInput = '';
     currentOperation = '';
+    shouldResetInput = true; // ✅ Set flag so next number input clears this result
     updateDisplay();
 }
 
@@ -87,6 +95,7 @@ function clearDisplay() {
     currentInput = '';
     previousInput = '';
     currentOperation = '';
+    shouldResetInput = false; // ✅ Reset flag
     updateDisplay();
 }
 
